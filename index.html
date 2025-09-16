@@ -33,20 +33,50 @@
     <meta name="twitter:title" content="iMTN App">
     <meta name="twitter:description" content="يعرض التطبيق الباقات المتاحة والخدمات ويمكن للمستخدم تفعيل باقة أو خدمة معينة كما يمكن الاستعلام عن جميع الباقات المفعلة وعرض الاستهلاك">
     <meta name="twitter:image" content="https://res.cloudinary.com/dpdeknzho/image/upload/v1727269133/IMG_20240925_155814_678_ogtqz7.jpg">
+
+    <!-- reCAPTCHA v3 client script (replace YOUR_SITE_KEY) -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lez18QrAAAAAHRVudPm3hSQZMkAlFN-2ilGylQP"></script>
     
 </head>
 <body>
-    <!-- Redirection Script -->
-    <script>
-        // Set a delay of 5 seconds (5000 milliseconds)
-        setTimeout(function() {
-            // Redirect to another URL
-            // window.location.href = "https://imtn.mtnsyr.com:16060/customerCare/static/APK/iMTN_1.0.6.apk";
-            window.location.href = "https://drive.google.com/file/d/1BG5aHb1Sdl9Do8Uw-0UB-9bQtsHy6l86/view?usp=drive_link";
-        }, 10); // 5000 milliseconds = 5 seconds
-    </script>
-    
-    <!-- Optional message to inform users -->
-    <p>iMTN App download will start in 1 seconds...</p>
+    <p id="status">Preparing download…</p>
+
+  <script>
+    const SITE_KEY = '6Lez18QrAAAAAHRVudPm3hSQZMkAlFN-2ilGylQP'; // <--- put your site key here
+    const WORKER_URL = 'https://recabachav3.digitalservices-mtn.workers.dev/'; // <--- change to your Worker URL
+    const DOWNLOAD_URL = 'https://devdigitalmtn.github.io/iMTN/assets/iMTN_1.0.6.apk'
+
+    const statusEl = document.getElementById('status');
+    function setStatus(t){ statusEl.textContent = t; }
+
+    grecaptcha.ready(() => {
+      setStatus('Running security check...');
+      // action 'download' is an arbitrary label — we'll expect the same on server
+      grecaptcha.execute(SITE_KEY, { action: 'download' }).then(token => {
+        // send token to Cloudflare Worker for server-side verification
+        fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, action: 'download' })
+        })
+        .then(r => r.json())
+        .then(json => {
+          if (json.success) {
+            setStatus('Verified ✓ Redirecting to download...');
+            // short delay to show message then redirect
+            setTimeout(() => window.location.href = DOWNLOAD_URL, 300);
+          } else {
+            console.warn('reCAPTCHA failed', json);
+            setStatus('Verification failed. Try again later.');
+            // optionally show a manual link or retry button
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          setStatus('Network or server error during verification.');
+        });
+      });
+    });
+  </script>
 </body>
 </html>
