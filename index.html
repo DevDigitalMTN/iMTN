@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <!-- Meta tags for proper character encoding and responsiveness -->
     <meta charset="UTF-8">
@@ -28,55 +28,169 @@
     <!-- Optional: Name of the website or app -->
     <meta property="og:site_name" content="MTN SYR" />
 
-    <!-- Optional: Twitter Card tags if you'd like a Twitter-specific preview -->
+    <!-- Optional: Twitter Card tags -->
     <meta name="twitter:card" content="large_image">
     <meta name="twitter:title" content="iMTN App">
     <meta name="twitter:description" content="يعرض التطبيق الباقات المتاحة والخدمات ويمكن للمستخدم تفعيل باقة أو خدمة معينة كما يمكن الاستعلام عن جميع الباقات المفعلة وعرض الاستهلاك">
     <meta name="twitter:image" content="https://res.cloudinary.com/dpdeknzho/image/upload/v1727269133/IMG_20240925_155814_678_ogtqz7.jpg">
 
-    <!-- reCAPTCHA v3 client script (replace YOUR_SITE_KEY) -->
+    <!-- reCAPTCHA v3 client script -->
     <script src="https://www.google.com/recaptcha/api.js?render=6Lez18QrAAAAAHRVudPm3hSQZMkAlFN-2ilGylQP"></script>
-    
+
+    <!-- Minimal CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        header img {
+            height: 50px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.5em;
+            flex: 1;
+            text-align: center;
+        }
+        .lang-select {
+            font-size: 1em;
+            padding: 5px;
+        }
+        .app-title {
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .app-image {
+            max-width: 80%;   /* instead of fixed 200px */
+            height: auto;
+            margin: 10px auto;
+            display: block;
+        }
+        .lang-text {
+            display: none;
+            max-width: 90%;   /* instead of 700px */
+            word-wrap: break-word;
+            margin: 20px auto;
+            text-align: left;
+            line-height: 1.5em;
+        }
+        .lang-text[dir="rtl"] {
+            text-align: right;
+        }
+
+        .lang-text.active {
+            display: block;
+        }
+        #status {
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Header -->
+    <header>
+        <img src="https://res.cloudinary.com/dlfmnem2s/image/upload/v1758022307/IMG_20250916_143135_042_gjttbs.png" alt="MTN Logo">
+        <h1>MTN SYR</h1>
+        <select class="lang-select" id="langSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+        </select>
+    </header>
+
+    <!-- App Title -->
+    <div class="app-title">MTN Self care app: iMTN app</div>
+
+    <!-- App Image -->
+    <img class="app-image" src="https://res.cloudinary.com/dlfmnem2s/image/upload/v1758022283/IMG_20250916_142804_487_hs5cel.png" alt="App Image">
+
+    <!-- Language Texts -->
+    <div id="enText" class="lang-text ">
+        <p>
+            The application displays the available packages and services, and the user can activate a specific package or service...<br><br>
+            The user can inquire about all the activated packages and view the consumption through a chart,<br>
+            Also, the user can search for the nearest service center and view all centers..<br>
+            The user can add more than one number and query them all..<br>
+            Also, the user can add his opinion about the application or send any problem he encountered through the application.
+        </p>
+    </div>
+
+    <div id="arText" class="lang-text active" dir="rtl">
+        <p>
+            يعرض التطبيق الباقات المتاحة والخدمات ويمكن للمستخدم تفعيل باقة أو خدمة معينة<br>
+            يمكن للمستخدم الاستعلام عن جميع الباقات المفعلة وعرض الاستهلاك من خلال مخطط<br>
+            وأيضا يمكن للمستخدم البحث عن أقرب مركز خدمة وعرض جميع المراكز<br>
+            ويمكن للمستخدم اضافة أكثر من رقم والاستعلام عنهم جميعا<br>
+            وايضا يمكن للمستخدم إضافة رايه حول التطبيق أو ارسال اي مشكلة واجهته من خلال التطبيق
+        </p>
+    </div>
+
+    <!-- Status -->
     <p id="status">Preparing download…</p>
 
-  <script>
-    const SITE_KEY = '6Lez18QrAAAAAHRVudPm3hSQZMkAlFN-2ilGylQP'; // <--- put your site key here
-    const WORKER_URL = 'https://recabachav3.digitalservices-mtn.workers.dev/'; // <--- change to your Worker URL
-    const DOWNLOAD_URL = 'https://devdigitalmtn.github.io/iMTN/assets/iMTN_1.0.6.apk'
+    <!-- Scripts -->
+    <script>
+        // Language Switcher
+        const langSelect = document.getElementById('langSelect');
+        const enText = document.getElementById('enText');
+        const arText = document.getElementById('arText');
 
-    const statusEl = document.getElementById('status');
-    function setStatus(t){ statusEl.textContent = t; }
-
-    grecaptcha.ready(() => {
-      setStatus('Running security check...');
-      // action 'download' is an arbitrary label — we'll expect the same on server
-      grecaptcha.execute(SITE_KEY, { action: 'download' }).then(token => {
-        // send token to Cloudflare Worker for server-side verification
-        fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, action: 'download' })
-        })
-        .then(r => r.json())
-        .then(json => {
-          if (json.success) {
-            setStatus('Verified ✓ Redirecting to download...');
-            // short delay to show message then redirect
-            setTimeout(() => window.location.href = DOWNLOAD_URL, 300);
-          } else {
-            console.warn('reCAPTCHA failed', json);
-            setStatus('Verification failed. Try again later.');
-            // optionally show a manual link or retry button
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          setStatus('Network or server error during verification.');
+        langSelect.addEventListener('change', () => {
+            if (langSelect.value === 'en') {
+                enText.classList.add('active');
+                arText.classList.remove('active');
+            } else {
+                arText.classList.add('active');
+                enText.classList.remove('active');
+            }
         });
-      });
-    });
-  </script>
+
+        // Download Verification
+        const SITE_KEY = '6Lez18QrAAAAAHRVudPm3hSQZMkAlFN-2ilGylQP';
+        const WORKER_URL = 'https://recabachav3.digitalservices-mtn.workers.dev/';
+        const DOWNLOAD_URL = 'https://devdigitalmtn.github.io/iMTN/assets/iMTN_1.0.6.apk'
+
+        const statusEl = document.getElementById('status');
+        function setStatus(t){ statusEl.textContent = t; }
+
+        grecaptcha.ready(() => {
+            setStatus('Running security check...');
+            grecaptcha.execute(SITE_KEY, { action: 'download' }).then(token => {
+                fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, action: 'download' })
+                })
+                .then(r => r.json())
+                .then(json => {
+                    if (json.success) {
+                        setStatus('Verified ✓ Redirecting to download...');
+                        // Delay increased to 4 seconds
+                        setTimeout(() => window.location.href = DOWNLOAD_URL, 4000);
+                    } else {
+                        setStatus('Verification failed. Try again later.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    setStatus('Network or server error during verification.');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
